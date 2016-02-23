@@ -534,7 +534,7 @@ function cw_mutate(car_def) {
       car_def.wheel_radius.pop();
       car_def.wheel_density.pop();
     }
-  }*/
+  }
 
   for (var i = 0; i < car_def.wheelCount; i++){
     if(Math.random() < gen_mutation){
