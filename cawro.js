@@ -71,7 +71,7 @@ var chassisMaxDensity = 300;
 var wheelMaxRadius = 0.5;
 var wheelMinRadius = 0.2;
 var wheelMaxDensity = 100;
-var wheelMinDensity = 20;
+var wheelMinDensity = 40;
 var wheelMinCount = 1
 var wheelMaxCount = 5
 
