@@ -65,13 +65,13 @@ var groundPieceHeight = 0.15;
 
 var chassisMaxAxis = 1.5;
 var chassisMinAxis = 0.1;
-var chassisMinDensity = 20;
+var chassisMinDensity = 10;
 var chassisMaxDensity = 300;
 
 var wheelMaxRadius = 0.5;
 var wheelMinRadius = 0.2;
 var wheelMaxDensity = 100;
-var wheelMinDensity = 20;
+var wheelMinDensity = 10;
 var wheelMinCount = 1
 var wheelMaxCount = 5
 
@@ -320,6 +320,13 @@ function cw_createRandomCar() {
   car_def.vertex_list.push(new b2Vec2(-Math.random()*chassisMaxAxis - chassisMinAxis,-Math.random()*chassisMaxAxis - chassisMinAxis));
   car_def.vertex_list.push(new b2Vec2(0,-Math.random()*chassisMaxAxis - chassisMinAxis));
   car_def.vertex_list.push(new b2Vec2(Math.random()*chassisMaxAxis + chassisMinAxis,-Math.random()*chassisMaxAxis - chassisMinAxis));
+  
+  car_def.color_list = new Array();
+  // all polygons are same color for first gen car
+  var hue = Math.floor(Math.random()*255).toString();
+  for(var i = 0; i < 8; i++) {
+      car_def.color_list.push(hue);
+  }
 
   var left = [];
   for (var i = 0; i < 8; i++){
@@ -468,26 +475,37 @@ function cw_makeChild(car_def1, car_def2) {
     newCarDef.wheel_density[i] = parents[curparent].wheel_density[i];  
   }
 
+  newCarDef.color_list = new Array();
   newCarDef.vertex_list = new Array();
+
   curparent = cw_chooseParent(curparent,4);
   newCarDef.vertex_list[0] = parents[curparent].vertex_list[0];
+  newCarDef.color_list[0] = parents[curparent].color_list[0];
   curparent = cw_chooseParent(curparent,5);
   newCarDef.vertex_list[1] = parents[curparent].vertex_list[1];
+  newCarDef.color_list[1] = parents[curparent].color_list[1];
   curparent = cw_chooseParent(curparent,6);
   newCarDef.vertex_list[2] = parents[curparent].vertex_list[2];
+  newCarDef.color_list[2] = parents[curparent].color_list[2];
   curparent = cw_chooseParent(curparent,7);
   newCarDef.vertex_list[3] = parents[curparent].vertex_list[3];
+  newCarDef.color_list[3] = parents[curparent].color_list[3];
   curparent = cw_chooseParent(curparent,8);
   newCarDef.vertex_list[4] = parents[curparent].vertex_list[4];
+  newCarDef.color_list[4] = parents[curparent].color_list[4];
   curparent = cw_chooseParent(curparent,9);
   newCarDef.vertex_list[5] = parents[curparent].vertex_list[5];
+  newCarDef.color_list[5] = parents[curparent].color_list[5];
   curparent = cw_chooseParent(curparent,10);
   newCarDef.vertex_list[6] = parents[curparent].vertex_list[6];
+  newCarDef.color_list[6] = parents[curparent].color_list[6];
   curparent = cw_chooseParent(curparent,11);
   newCarDef.vertex_list[7] = parents[curparent].vertex_list[7];
+  newCarDef.color_list[7] = parents[curparent].color_list[7];
 
   curparent = cw_chooseParent(curparent,14);
   newCarDef.chassis_density = parents[curparent].chassis_density;
+
   return newCarDef;
 }
 
@@ -519,19 +537,6 @@ function cw_mutatev(car_def, n, xfact, yfact) {
 
 function cw_mutate(car_def) {
 
-  function fix_vertices(car_def) {
-    car_def.wheel_vertex = [];
-    var left = [];
-    for (var i = 0; i < 8; i++){
-      left.push(i);
-    }
-    for (var i = 0; i < car_def.wheelCount; i++){
-      var indexOfNext = Math.floor(Math.random()*left.length);
-      car_def.wheel_vertex[i] = left[indexOfNext];
-      left.splice(indexOfNext, 1);
-    }
-  }
-
   if(Math.random() < gen_mutation){
     var oldWheelCount = car_def.wheelCount;
     car_def.wheelCount = Math.round(cw_mutate1(car_def.wheelCount, wheelMinCount, wheelMaxCount));
@@ -541,15 +546,15 @@ function cw_mutate(car_def) {
       for (var i = oldWheelCount; i < car_def.wheelCount; i++) {
         car_def.wheel_radius[i] = Math.random()*wheelMaxRadius+wheelMinRadius;
         car_def.wheel_density[i] = Math.random()*wheelMaxDensity+wheelMinDensity;
+        car_def.wheel_vertex[i] = Math.floor(Math.random()*8)%8;
       }
-      fix_vertices(car_def);
     } else if(car_def.wheelCount < oldWheelCount) {
       // we lost some wheels so remove the extra array elements 
        for (var i = oldWheelCount; i > car_def.wheelCount; i--) {
         car_def.wheel_radius.pop();
         car_def.wheel_density.pop();
+        car_def.wheel_vertex.pop();
       }
-      fix_vertices(car_def);
     }
   }
 
@@ -713,21 +718,21 @@ function cw_drawCars() {
     var densitycolor = Math.round(100 - (70 * ((myCar.car_def.chassis_density - chassisMinDensity) / chassisMaxDensity))).toString() + "%";
     if(myCar.is_elite) {
       ctx.strokeStyle = "#44c";
-      //ctx.fillStyle = "#ddf";
-      ctx.fillStyle = "hsl(240,50%,"+densitycolor+")";
     } else {
       ctx.strokeStyle = "#c44";
-      //ctx.fillStyle = "#fdd";
-      ctx.fillStyle = "hsl(0,50%,"+densitycolor+")";
     }
     ctx.beginPath();
     var b = myCar.chassis;
+    var col = 0;
     for (f = b.GetFixtureList(); f; f = f.m_next) {
       var s = f.GetShape();
+      ctx.beginPath();
+      ctx.fillStyle = "hsl(" + myCar.car_def.color_list[col] + ",50%,"+densitycolor+")";
       cw_drawVirtualPoly(b, s.m_vertices, s.m_vertexCount);
+      col++;
+      ctx.fill();
+      ctx.stroke();
     }
-    ctx.fill();
-    ctx.stroke();
   }
 }
 
