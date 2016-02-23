@@ -68,7 +68,7 @@ var chassisMinAxis = 0.1;
 var chassisMinDensity = 30;
 var chassisMaxDensity = 300;
 
-var wheelMaxRadius = 0.8;
+var wheelMaxRadius = 0.5;
 var wheelMinRadius = 0.2;
 var wheelMaxDensity = 100;
 var wheelMinDensity = 20;
@@ -527,13 +527,14 @@ function cw_mutate(car_def) {
       car_def.wheel_radius[i] = Math.random()*wheelMaxRadius+wheelMinRadius;
       car_def.wheel_density[i] = Math.random()*wheelMaxDensity+wheelMinDensity;
     }
+    this.wheels[i] = cw_createWheel(car_def.wheel_radius[i], car_def.wheel_density[i]);
   } else if(car_def.wheelCount < oldWheelCount) {
     // we lost some wheels so remove the extra array elements 
-     for (var i = car_def.wheelCount; i > oldWheelCount; i--) {
+     for (var i = oldWheelCount; i > car_def.wheelCount; i--) {
       car_def.wheel_radius.pop();
       car_def.wheel_density.pop();
     }
-  }
+  }*/
 
   for (var i = 0; i < car_def.wheelCount; i++){
     if(Math.random() < gen_mutation){
