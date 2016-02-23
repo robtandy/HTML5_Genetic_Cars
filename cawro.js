@@ -332,6 +332,7 @@ function cw_createRandomCar() {
   }
 
   return car_def;
+  car_def.wheel_vertex = [];
 }
 
 /* === END Car ============================================================= */
@@ -517,21 +518,38 @@ function cw_mutatev(car_def, n, xfact, yfact) {
 
 
 function cw_mutate(car_def) {
-  var oldWheelCount = car_def.wheelCount;
 
-  car_def.wheelCount = cw_mutate1(car_def.wheelCount, wheelMinCount, wheelMaxCount);
-
-  if(car_def.wheelCount > oldWheelCount) {
-    // we added some wheels
-    for (var i = oldWheelCount; i < car_def.wheelCount; i++) {
-      car_def.wheel_radius[i] = Math.random()*wheelMaxRadius+wheelMinRadius;
-      car_def.wheel_density[i] = Math.random()*wheelMaxDensity+wheelMinDensity;
+  function fix_vertices(car_def) {
+    car_def.wheel_vertex = [];
+    var left = [];
+    for (var i = 0; i < 8; i++){
+      left.push(i);
     }
-  } else if(car_def.wheelCount < oldWheelCount) {
-    // we lost some wheels so remove the extra array elements 
-     for (var i = oldWheelCount; i > car_def.wheelCount; i--) {
-      car_def.wheel_radius.pop();
-      car_def.wheel_density.pop();
+    for (var i = 0; i < car_def.wheelCount; i++){
+      var indexOfNext = Math.floor(Math.random()*left.length);
+      car_def.wheel_vertex[i] = left[indexOfNext];
+      left.splice(indexOfNext, 1);
+    }
+  }
+
+  if(Math.random() < gen_mutation){
+    var oldWheelCount = car_def.wheelCount;
+    car_def.wheelCount = Math.round(cw_mutate1(car_def.wheelCount, wheelMinCount, wheelMaxCount));
+
+    if(car_def.wheelCount > oldWheelCount) {
+      // we added some wheels
+      for (var i = oldWheelCount; i < car_def.wheelCount; i++) {
+        car_def.wheel_radius[i] = Math.random()*wheelMaxRadius+wheelMinRadius;
+        car_def.wheel_density[i] = Math.random()*wheelMaxDensity+wheelMinDensity;
+      }
+      fix_vertices(car_def);
+    } else if(car_def.wheelCount < oldWheelCount) {
+      // we lost some wheels so remove the extra array elements 
+       for (var i = oldWheelCount; i > car_def.wheelCount; i--) {
+        car_def.wheel_radius.pop();
+        car_def.wheel_density.pop();
+      }
+      fix_vertices(car_def);
     }
   }
 
