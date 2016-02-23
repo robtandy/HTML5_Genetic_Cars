@@ -63,15 +63,15 @@ var last_drawn_tile = 0;
 var groundPieceWidth = 1.5;
 var groundPieceHeight = 0.15;
 
-var chassisMaxAxis = 1.1;
+var chassisMaxAxis = 1.5;
 var chassisMinAxis = 0.1;
-var chassisMinDensity = 30;
+var chassisMinDensity = 20;
 var chassisMaxDensity = 300;
 
 var wheelMaxRadius = 0.5;
 var wheelMinRadius = 0.2;
 var wheelMaxDensity = 100;
-var wheelMinDensity = 40;
+var wheelMinDensity = 20;
 var wheelMinCount = 1
 var wheelMaxCount = 5
 
